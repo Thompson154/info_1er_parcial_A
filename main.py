@@ -3,7 +3,7 @@ import logging
 import arcade
 import pymunk
 
-from game_object import Bird, Column, Pig
+from game_object import Bird, ColumnV, ColumnH, Pig
 from game_logic import get_impulse_vector, Point2D, get_distance
 
 logging.basicConfig(level=logging.DEBUG)
@@ -13,7 +13,7 @@ logging.getLogger("PIL").setLevel(logging.WARNING)
 
 logger = logging.getLogger("main")
 
-WIDTH = 1800
+WIDTH = 1600
 HEIGHT = 800
 TITLE = "Angry birds"
 GRAVITY = -900
@@ -62,15 +62,40 @@ class App(arcade.Window):
         return True
 
     def add_columns(self):
-        for x in range(WIDTH // 2, WIDTH, 400):
-            column = Column(x, 50, self.space)
+        for x in range(600, WIDTH, 50):
+            column = ColumnV(x, 50, self.space)
             self.sprites.append(column)
-            self.world.append(column)
+            self.world.append(column)   
+            
+        # for x in range(600, WIDTH, 120):
+        #     column = ColumnH(x, 50, self.space)
+        #     self.sprites.append(column)
+        #     self.world.append(column)      
 
     def add_pigs(self):
-        pig1 = Pig(WIDTH / 2, 100, self.space)
+        pig1 = Pig(600, 100, self.space)
         self.sprites.append(pig1)
         self.world.append(pig1)
+        
+        pig2 = Pig(650, 100, self.space)
+        self.sprites.append(pig2)
+        self.world.append(pig2)
+        
+        pig3 = Pig(700, 100, self.space)
+        self.sprites.append(pig3)
+        self.world.append(pig3)
+        
+        pig4 = Pig(750, 100, self.space)
+        self.sprites.append(pig4)
+        self.world.append(pig4)
+        
+        pig5 = Pig(800, 100, self.space)
+        self.sprites.append(pig5)
+        self.world.append(pig5)
+        
+        pig6 = Pig(850, 100, self.space)
+        self.sprites.append(pig6)
+        self.world.append(pig6)
 
     def on_update(self, delta_time: float):
         self.space.step(1 / 60.0)  # actualiza la simulacion de las fisicas

@@ -117,9 +117,15 @@ class PassiveObject(arcade.Sprite):
         self.radians = self.shape.body.angle
 
 
-class Column(PassiveObject):
+class ColumnV(PassiveObject):
     def __init__(self, x, y, space):
         super().__init__("assets/img/column.png", x, y, space)
+        
+#INtentando que la columna este en horizontal xd
+class ColumnH(PassiveObject):
+    def __init__(self, x, y, space):
+        super().__init__("assets/img/column.png", x, y, space)
+        self.angle = 180
 
 
 class StaticObject(arcade.Sprite):
