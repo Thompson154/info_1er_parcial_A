@@ -23,8 +23,9 @@ class Bird(arcade.Sprite):
         elasticity: float = 0.8,
         friction: float = 1,
         collision_layer: int = 0,
+        
     ):
-        super().__init__(image_path, 1)
+        super().__init__(image_path, 0.1)
         # body
         moment = pymunk.moment_for_circle(mass, 0, radius)
         body = pymunk.Body(mass, moment)
@@ -65,7 +66,7 @@ class Pig(arcade.Sprite):
         friction: float = 0.4,
         collision_layer: int = 0,
     ):
-        super().__init__("assets/img/pig_failed.png", 0.1)
+        super().__init__("assets/img/pigRedStarWars.png", 0.1)
         moment = pymunk.moment_for_circle(mass, 0, self.width / 2 - 3)
         body = pymunk.Body(mass, moment)
         body.position = (x, y)
@@ -119,13 +120,13 @@ class PassiveObject(arcade.Sprite):
 
 class ColumnV(PassiveObject):
     def __init__(self, x, y, space):
-        super().__init__("assets/img/column.png", x, y, space)
+        super().__init__("assets/img/columnStarWars.png", x, y,space)
         
 #INtentando que la columna este en horizontal xd
 class ColumnH(PassiveObject):
     def __init__(self, x, y, space):
-        super().__init__("assets/img/column.png", x, y, space)
-        self.angle = 180
+        super().__init__("assets/img/columnStarWarsH.png", x, y, space)
+        self.angle = 90
 
 
 class StaticObject(arcade.Sprite):
@@ -141,4 +142,15 @@ class StaticObject(arcade.Sprite):
             collision_layer: int = 0,
     ):
         super().__init__(image_path, 1)
+
+class Slingshot(arcade.Sprite):
+    def __init__(self, x, y):
+        super().__init__("assets/img/resorteraStarWars.png", scale=0.7)  # Asegúrate de ajustar la ruta y escala
+        self.center_x = x
+        self.center_y = y
+        self.pulling = False
+        self.start_x = x
+        self.start_y = y
+        self.stretch = 0
+        
 

@@ -47,7 +47,7 @@ def get_impulse_vector(start_point: Point2D, end_point: Point2D) -> ImpulseVecto
     angle = get_angle_radians(end_point, start_point)
     distance = get_distance(end_point, start_point)
     
-    impulse_magnitude = distance * 1.5
+    impulse_magnitude = distance
     logger.debug(f"Impulse Vector - Angle: {math.degrees(angle)} degrees, Impulse: {impulse_magnitude}")
     return ImpulseVector(angle, impulse_magnitude)
     # return ImpulseVector(0, 0)

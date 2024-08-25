@@ -18,9 +18,7 @@ WIDTH = 1600
 HEIGHT = 800
 TITLE = "Angry birds"
 GRAVITY = -900
-MAX_BIRDS = 10
-# Longitud máxima de la línea de la resortera
-MAX_LINE_LENGTH = 150
+
 
 class App(arcade.Window):
     def __init__(self):
@@ -28,6 +26,7 @@ class App(arcade.Window):
         # self.background = arcade.load_texture("assets/img/background33.png")
         self.space = pymunk.Space()
         self.space.gravity = (0, GRAVITY)
+        
 
         floor_body = pymunk.Body(body_type=pymunk.Body.STATIC)
         floor_shape = pymunk.Segment(floor_body, [0, 12], [WIDTH, 12], 0.0)
@@ -50,7 +49,7 @@ class App(arcade.Window):
         
         self.setup_level()
         
-        self.slingshot = Slingshot(300, 110)  # Ajusta la posición de la resortera
+        self.slingshot = Slingshot(300, 110)
         self.sprites.append(self.slingshot)
 
     def clear_level(self):
@@ -68,22 +67,18 @@ class App(arcade.Window):
         if impulse_norm > 1200:
             for obj in self.world:
                 if obj.shape in arbiter.shapes:
-                    if isinstance(obj, Pig):
-                        # Incrementar el puntaje por destruir un cerdo
-                        self.score += 100
-                    elif isinstance(obj, ColumnV) or isinstance(obj, ColumnH):
-                        # Incrementar el puntaje por destruir una columna
-                        self.score += 50
-
                     obj.remove_from_sprite_lists()
                     self.space.remove(obj.shape, obj.body)
         return True
+    
+    def update_collisions(self):
+        pass
     
     def setup_level(self):
         self.clear_level()
         if self.level == 1:
             self.background = arcade.load_texture("assets/img/background31.png")
-            self.add_columns(start_x=600, spacing=120, num_columns=1)
+            self.add_columns(start_x=600, spacing=50, num_columns=20)
             self.add_pigs(start_x=600, spacing=50, num_pigs=6)
         elif self.level == 2:
             self.background = arcade.load_texture("assets/img/background32.png")
@@ -100,13 +95,6 @@ class App(arcade.Window):
             column = ColumnV(x_position, 50, self.space)
             self.sprites.append(column)
             self.world.append(column)
-    
-    def add_columnsH(self, start_x, spacing, num_columns):
-        for i in range(num_columns):
-            x_position = start_x + i * spacing
-            column = ColumnH(x_position, 50, self.space)
-            self.sprites.append(column)
-            self.world.append(column)
 
     def add_pigs(self, start_x, spacing, num_pigs):
         for i in range(num_pigs):
@@ -117,55 +105,35 @@ class App(arcade.Window):
 
     def on_update(self, delta_time: float):
         self.space.step(1 / 60.0)
-        self.update_collisions()
         self.sprites.update()
-        
-    def update_collisions(self):
-        pass
 
     def on_mouse_press(self, x, y, button, modifiers):
         if button == arcade.MOUSE_BUTTON_LEFT:
-            # Comprobar si el clic está dentro de la área de la resortera
-            if self.slingshot.collides_with_point((x, y)):
-                self.start_point = Point2D(self.slingshot.center_x, self.slingshot.center_y)
-                self.end_point = Point2D(self.slingshot.center_x, self.slingshot.center_y)
-                self.draw_line = True
-                logger.debug(f"Start Point: {self.start_point}")
+            self.start_point = Point2D(x, y)
+            self.end_point = Point2D(x, y)
+            self.draw_line = True
+            logger.debug(f"Start Point: {self.start_point}")
 
     def on_mouse_drag(self, x: int, y: int, dx: int, dy: int, buttons: int, modifiers: int):
-        if buttons == arcade.MOUSE_BUTTON_LEFT and self.draw_line:
+        if buttons == arcade.MOUSE_BUTTON_LEFT:
             self.end_point = Point2D(x, y)
             logger.debug(f"Dragging to: {self.end_point}")
 
     def on_mouse_release(self, x: int, y: int, button: int, modifiers: int):
-        if button == arcade.MOUSE_BUTTON_LEFT and self.draw_line:
+        if button == arcade.MOUSE_BUTTON_LEFT:
             logger.debug(f"Releasing from: {self.end_point}")
             self.draw_line = False
-            if(len(self.birds) <= MAX_BIRDS):
-                impulse_vector = get_impulse_vector(self.start_point, self.end_point)
-                bird = Bird("assets/img/birdYellowStarWars.png", impulse_vector, self.end_point.x, self.end_point.y, self.space)
-            # print(len(self.sprites),"HOla")
-                self.sprites.append(bird)
-                self.birds.append(bird)
+            impulse_vector = get_impulse_vector(self.start_point, self.end_point)
+            bird = Bird("assets/img/red-bird3.png", impulse_vector, x, y, self.space)
+            self.sprites.append(bird)
+            self.birds.append(bird)
 
     def on_draw(self):
         arcade.start_render()
         arcade.draw_lrwh_rectangle_textured(0, 0, WIDTH, HEIGHT, self.background)
         self.sprites.draw()
-        
         if self.draw_line:
-            # Calcula la distancia entre el punto de inicio y el punto final
-            distance = get_distance(self.start_point, self.end_point)
-            if distance > MAX_LINE_LENGTH:
-                # Ajusta el punto final si la distancia es mayor que la longitud máxima
-                direction = Point2D(self.end_point.x - self.start_point.x, self.end_point.y - self.start_point.y)
-                length = math.sqrt(direction.x**2 + direction.y**2)
-                direction.x /= length
-                direction.y /= length
-                self.end_point = Point2D(self.start_point.x + direction.x * MAX_LINE_LENGTH,
-                                         self.start_point.y + direction.y * MAX_LINE_LENGTH)
-            
-            arcade.draw_line(300, 150, self.end_point.x, self.end_point.y,
+            arcade.draw_line(300, 170, self.end_point.x, self.end_point.y,
                              arcade.color.BLACK, 3)
             
         arcade.draw_text(f"Score: {self.score}", 10, HEIGHT - 30, arcade.color.RED, 24)
@@ -178,5 +146,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
