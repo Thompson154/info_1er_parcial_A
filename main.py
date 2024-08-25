@@ -18,9 +18,17 @@ WIDTH = 1600
 HEIGHT = 800
 TITLE = "Angry birds"
 GRAVITY = -900
-MAX_BIRDS = 10
+MAX_BIRDS = 30
+
 # Longitud máxima de la línea de la resortera
 MAX_LINE_LENGTH = 150
+
+# Umbrales de puntaje para cambiar de nivel
+LEVEL_SCORE_THRESHOLDS = {
+    1: 400,
+    2: 700,
+    3: 1500
+}
 
 class App(arcade.Window):
     def __init__(self):
@@ -50,8 +58,8 @@ class App(arcade.Window):
         
         self.setup_level()
         
-        self.slingshot = Slingshot(300, 110)  # Ajusta la posición de la resortera
-        self.sprites.append(self.slingshot)
+        # self.slingshot = Slingshot(300, 110)  # Ajusta la posición de la resortera
+        # self.sprites.append(self.slingshot)
 
     def clear_level(self):
         for obj in self.world:
@@ -85,14 +93,20 @@ class App(arcade.Window):
             self.background = arcade.load_texture("assets/img/background31.png")
             self.add_columns(start_x=600, spacing=120, num_columns=1)
             self.add_pigs(start_x=600, spacing=50, num_pigs=6)
+            self.slingshot = Slingshot(300, 110)  # Ajusta la posición de la resortera
+            self.sprites.append(self.slingshot)
         elif self.level == 2:
             self.background = arcade.load_texture("assets/img/background32.png")
             self.add_columns(start_x=500, spacing=60, num_columns=15)
             self.add_pigs(start_x=550, spacing=55, num_pigs=5)
+            self.slingshot = Slingshot(300, 110)  # Ajusta la posición de la resortera
+            self.sprites.append(self.slingshot)
         else:
             self.background = arcade.load_texture("assets/img/background33.png")
             self.add_columns(start_x=500, spacing=60, num_columns=15)
             self.add_pigs(start_x=550, spacing=55, num_pigs=15)
+            self.slingshot = Slingshot(300, 110)  # Ajusta la posición de la resortera
+            self.sprites.append(self.slingshot)
             
     def add_columns(self, start_x, spacing, num_columns):
         for i in range(num_columns):
@@ -120,8 +134,20 @@ class App(arcade.Window):
         self.update_collisions()
         self.sprites.update()
         
+        # Verificar si se debe cambiar de nivel
+        self.check_level_up()
+        
     def update_collisions(self):
         pass
+
+    def check_level_up(self):
+        # Verificar si el puntaje ha alcanzado el umbral para el próximo nivel
+        if self.score >= LEVEL_SCORE_THRESHOLDS.get(self.level, float('inf')):
+            self.level += 1
+            logger.info(f"Nivel alcanzado: {self.level}")
+            self.setup_level()
+            # Restablecer o ajustar el puntaje según la necesidad
+            # self.score = 0  # Si quieres reiniciar el puntaje en cada nivel
 
     def on_mouse_press(self, x, y, button, modifiers):
         if button == arcade.MOUSE_BUTTON_LEFT:
@@ -141,10 +167,9 @@ class App(arcade.Window):
         if button == arcade.MOUSE_BUTTON_LEFT and self.draw_line:
             logger.debug(f"Releasing from: {self.end_point}")
             self.draw_line = False
-            if(len(self.birds) <= MAX_BIRDS):
+            if len(self.birds) <= MAX_BIRDS:
                 impulse_vector = get_impulse_vector(self.start_point, self.end_point)
                 bird = Bird("assets/img/birdYellowStarWars.png", impulse_vector, self.end_point.x, self.end_point.y, self.space)
-            # print(len(self.sprites),"HOla")
                 self.sprites.append(bird)
                 self.birds.append(bird)
 
@@ -178,5 +203,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
