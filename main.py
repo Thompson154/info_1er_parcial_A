@@ -53,6 +53,8 @@ class App(arcade.Window):
         self.handler = self.space.add_default_collision_handler()
         self.handler.post_solve = self.collision_handler
         
+        self.selected_ability = None
+        
         self.setup_level()
 
     def clear_level(self):
@@ -84,8 +86,6 @@ class App(arcade.Window):
         self.sprites = arcade.SpriteList()
         self.world = arcade.SpriteList()
         self.score = 0
-        self.level = 1
-        self.clear_level()
         self.slingshot = Slingshot(300, 110)  
         self.sprites.append(self.slingshot)
 
@@ -108,7 +108,7 @@ class App(arcade.Window):
             self.background = arcade.load_texture("assets/img/background33.png")
             self.add_columns(start_x=500, spacing=60, num_columns=15)
             self.add_pigs(start_x=550, spacing=55, num_pigs=15)
-            self.slingshot = Slingshot(300, 110)  # Ajusta la posición de la resortera
+            self.slingshot = Slingshot(300, 110)
             self.sprites.append(self.slingshot)
             
     def add_columns(self, start_x, spacing, num_columns):
@@ -136,7 +136,6 @@ class App(arcade.Window):
         self.space.step(1 / 60.0)
         self.update_collisions()
         self.sprites.update()
-        
         self.check_level_up()
         
     def update_collisions(self):
@@ -157,26 +156,24 @@ class App(arcade.Window):
                 logger.debug(f"Start Point: {self.start_point}")
             else:
                 for bird in self.birds:
-                    if bird.body.velocity.length > 0 and not hasattr(bird, "divided"):
-                        #Imprimir el nombre de la imagen del pajaro
-                        if (bird.texture.name[15]=='B'):
+                    if bird.body.velocity.length > 0 and not hasattr(bird, "ability_used"):
+                        # Aplicar la habilidad seleccionada
+                        if self.selected_ability == "split":
                             self.divide_bird(bird)
-                            bird.divided = True
-                        elif (bird.texture.name[15]=='Y'):
+                        elif self.selected_ability == "speed_boost":
                             self.double_impulse(bird)
+                        bird.ability_used = True
                         return
 
     def double_impulse(self, bird):
         impulse_vector = ImpulseVector(bird.body.angle, bird.body.velocity.length)
-        #Borrar el pajaro que se va a dividir
+ 
         bird.remove_from_sprite_lists()
         self.space.remove(bird.shape, bird.body)
 
-        #Crear un nuevo pajaro
         new_bird = Bird("assets/img/birdYellowStarWars.png", impulse_vector, bird.center_x, bird.center_y, self.space)
         self.sprites.append(new_bird)
         self.birds.append(new_bird)
-
 
     def divide_bird(self, bird):
         offsets = [(-10, 10), (10, 10)]
@@ -203,41 +200,41 @@ class App(arcade.Window):
             self.draw_line = False
             if get_distance(self.start_point, self.end_point) > 10:
                 impulse_vector = get_impulse_vector(self.start_point, self.end_point)
-                bird = Bird("assets/img/birdRedStarWars.png", impulse_vector, self.slingshot.center_x, self.slingshot.center_y, self.space)
+                bird_texture = "assets/img/birdRedStarWars.png"
+
+                if self.selected_ability == "split":
+                    bird_texture = "assets/img/birdBlueStarWars.png"
+                elif self.selected_ability == "speed_boost":
+                    bird_texture = "assets/img/birdYellowStarWars.png"
+
+                bird = Bird(bird_texture, impulse_vector, self.slingshot.center_x, self.slingshot.center_y, self.space)
                 self.birds.append(bird)
                 self.sprites.append(bird)
                 self.end_point = self.start_point
                 logger.debug(f"Impulse vector: {impulse_vector}")
 
+    def on_key_press(self, key, modifiers):
+        if key == arcade.key.Y:
+            self.selected_ability = "speed_boost"
+        elif key == arcade.key.B:
+            self.selected_ability = "split"
+        elif key == arcade.key.N:
+            self.selected_ability = None 
 
     def on_draw(self):
         arcade.start_render()
-        arcade.draw_lrwh_rectangle_textured(0, 0, WIDTH, HEIGHT, self.background)
+        arcade.draw_texture_rectangle(WIDTH // 2, HEIGHT // 2, WIDTH, HEIGHT, self.background)
         self.sprites.draw()
-        
         if self.draw_line:
-            distance = get_distance(self.start_point, self.end_point)
-            if distance > MAX_LINE_LENGTH:
-                direction = Point2D(self.end_point.x - self.start_point.x, self.end_point.y - self.start_point.y)
-                length = math.sqrt(direction.x**2 + direction.y**2)
-                direction.x /= length
-                direction.y /= length
-                self.end_point = Point2D(self.start_point.x + direction.x * MAX_LINE_LENGTH,
-                                         self.start_point.y + direction.y * MAX_LINE_LENGTH)
-            
-            arcade.draw_line(300, 150, self.end_point.x, self.end_point.y,
-                             arcade.color.BLACK, 3)
-            
+            arcade.draw_line(self.start_point.x, self.start_point.y, self.end_point.x, self.end_point.y, arcade.color.BLACK, 2)
         arcade.draw_text(f"Score: {self.score}", 10, HEIGHT - 30, arcade.color.RED, 24)
-
-
-def main():
-    app = App()
-    arcade.run()
+        arcade.draw_text(f"Level: {self.level}", 10, HEIGHT - 80, arcade.color.RED, 24)
 
 
 if __name__ == "__main__":
-    main()
+    App()
+    arcade.run()
+
 
 
 

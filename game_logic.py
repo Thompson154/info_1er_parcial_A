@@ -27,7 +27,6 @@ def get_angle_radians(point_a: Point2D, point_b: Point2D) -> float:
     angle = math.atan2(delta_y, delta_x)
     logger.debug(f"Angle between points: {math.degrees(angle)} degrees")
     return angle
-    # return 0.0
 
 
 def get_distance(point_a: Point2D, point_b: Point2D) -> float:
@@ -37,7 +36,6 @@ def get_distance(point_a: Point2D, point_b: Point2D) -> float:
     distance = math.sqrt((point_b.x - point_a.x) ** 2 + (point_b.y - point_a.y) ** 2)
     logger.debug(f"Distance between points: {distance}")
     return distance
-    # return 0.0
 
 
 def get_impulse_vector(start_point: Point2D, end_point: Point2D) -> ImpulseVector:
@@ -50,4 +48,3 @@ def get_impulse_vector(start_point: Point2D, end_point: Point2D) -> ImpulseVecto
     impulse_magnitude = distance
     logger.debug(f"Impulse Vector - Angle: {math.degrees(angle)} degrees, Impulse: {impulse_magnitude}")
     return ImpulseVector(angle, impulse_magnitude)
-    # return ImpulseVector(0, 0)

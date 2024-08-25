@@ -122,7 +122,7 @@ class ColumnV(PassiveObject):
     def __init__(self, x, y, space):
         super().__init__("assets/img/columnStarWars.png", x, y,space)
         
-#INtentando que la columna este en horizontal xd
+
 class ColumnH(PassiveObject):
     def __init__(self, x, y, space):
         super().__init__("assets/img/columnStarWarsH.png", x, y, space)
