@@ -22,10 +22,12 @@ GRAVITY = -900
 class App(arcade.Window):
     def __init__(self):
         super().__init__(WIDTH, HEIGHT, TITLE)
-        # self.background = arcade.load_texture("assets/img/background33.png")
+        self.background = arcade.load_texture("assets/img/background33.png")
+        # crear espacio de pymunk
         self.space = pymunk.Space()
         self.space.gravity = (0, GRAVITY)
 
+        # agregar piso
         floor_body = pymunk.Body(body_type=pymunk.Body.STATIC)
         floor_shape = pymunk.Segment(floor_body, [0, 12], [WIDTH, 12], 0.0)
         floor_shape.friction = 10
@@ -34,25 +36,17 @@ class App(arcade.Window):
         self.sprites = arcade.SpriteList()
         self.birds = arcade.SpriteList()
         self.world = arcade.SpriteList()
-        self.score = 0
-        self.level = 1
+        self.add_columns()
+        self.add_pigs()
 
         self.start_point = Point2D()
         self.end_point = Point2D()
         self.distance = 0
         self.draw_line = False
 
+        # agregar un collision handler
         self.handler = self.space.add_default_collision_handler()
         self.handler.post_solve = self.collision_handler
-        
-        self.setup_level()
-
-    def clear_level(self):
-        for obj in self.world:
-            obj.remove_from_sprite_lists()
-            self.space.remove(obj.shape, obj.body)
-        self.sprites = arcade.SpriteList()
-        self.world = arcade.SpriteList()
 
     def collision_handler(self, arbiter, space, data):
         impulse_norm = arbiter.total_impulse.length
@@ -64,40 +58,52 @@ class App(arcade.Window):
                 if obj.shape in arbiter.shapes:
                     obj.remove_from_sprite_lists()
                     self.space.remove(obj.shape, obj.body)
-        return True
-    
-    def setup_level(self):
-        self.clear_level()
-        if self.level == 1:
-            self.background = arcade.load_texture("assets/img/background31.png")
-            self.add_columns(start_x=600, spacing=50, num_columns=20)
-            self.add_pigs(start_x=600, spacing=50, num_pigs=6)
-        elif self.level == 2:
-            self.background = arcade.load_texture("assets/img/background32.png")
-            self.add_columns(start_x=500, spacing=60, num_columns=15)
-            self.add_pigs(start_x=550, spacing=55, num_pigs=5)
-        else:
-            self.background = arcade.load_texture("assets/img/background33.png")
-            self.add_columns(start_x=500, spacing=60, num_columns=15)
-            self.add_pigs(start_x=550, spacing=55, num_pigs=15)
-            
-    def add_columns(self, start_x, spacing, num_columns):
-        for i in range(num_columns):
-            x_position = start_x + i * spacing
-            column = ColumnV(x_position, 50, self.space)
-            self.sprites.append(column)
-            self.world.append(column)
 
-    def add_pigs(self, start_x, spacing, num_pigs):
-        for i in range(num_pigs):
-            x_position = start_x + i * spacing
-            pig = Pig(x_position, 100, self.space)
-            self.sprites.append(pig)
-            self.world.append(pig)
+        return True
+
+    def add_columns(self):
+        for x in range(600, WIDTH, 50):
+            column = ColumnV(x, 50, self.space)
+            self.sprites.append(column)
+            self.world.append(column)   
+            
+        # for x in range(600, WIDTH, 120):
+        #     column = ColumnH(x, 50, self.space)
+        #     self.sprites.append(column)
+        #     self.world.append(column)      
+
+    def add_pigs(self):
+        pig1 = Pig(600, 100, self.space)
+        self.sprites.append(pig1)
+        self.world.append(pig1)
+        
+        pig2 = Pig(650, 100, self.space)
+        self.sprites.append(pig2)
+        self.world.append(pig2)
+        
+        pig3 = Pig(700, 100, self.space)
+        self.sprites.append(pig3)
+        self.world.append(pig3)
+        
+        pig4 = Pig(750, 100, self.space)
+        self.sprites.append(pig4)
+        self.world.append(pig4)
+        
+        pig5 = Pig(800, 100, self.space)
+        self.sprites.append(pig5)
+        self.world.append(pig5)
+        
+        pig6 = Pig(850, 100, self.space)
+        self.sprites.append(pig6)
+        self.world.append(pig6)
 
     def on_update(self, delta_time: float):
-        self.space.step(1 / 60.0)
+        self.space.step(1 / 60.0)  # actualiza la simulacion de las fisicas
+        self.update_collisions()
         self.sprites.update()
+
+    def update_collisions(self):
+        pass
 
     def on_mouse_press(self, x, y, button, modifiers):
         if button == arcade.MOUSE_BUTTON_LEFT:
